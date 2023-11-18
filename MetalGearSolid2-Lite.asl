@@ -312,6 +312,9 @@ startup {
       settings.Add("r_plt_412", true, "Rays");
       settings.Add("r_plt_470", true, "Solidus");
       settings.Add("r_plt_result", true, "Results");
+
+    settings.CurrentDefaultParent = "tales";
+    settings.Add("tales", true, "Snake Tales", "splits");
   
   print("Startup complete");
 }
