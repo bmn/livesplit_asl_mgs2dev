@@ -4,6 +4,7 @@
 * Main game should be all working, partially tested
 * Guard Rush didn't work on test once, haven't investigated
 * Untested bugfix for Tengu 1/results sometimes not working on 2nd playthrough
+* No Snake Tales yet
 
 ## Main progress
 * Tanker splits done and partially tested
