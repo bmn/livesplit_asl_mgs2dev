@@ -110,7 +110,7 @@ isLoading {
 }
 
 gameTime {
-  if ((vars.IsSubstance) && (settings["aslvv"])) vars.UpdateASLVars();
+  if (settings["aslvv"]) vars.UpdateASLVars();
 
   TimeSpan gameTime = TimeSpan.FromMilliseconds(current.GameTime * 1000 / 60);
   vars.GameTime = gameTime.ToString(@"h\:mm\:ss\.ff");
@@ -233,7 +233,6 @@ startup {
     vars.ASL_Level = "";
     vars.ASL_MechsDestroyed = 0;
     vars.ASL_Minutes = 0;
-    vars.ASL_QuickEquipMode = "";
     vars.ASL_Rations = 0;
     vars.ASL_RoomTimer = 0;
     vars.ASL_Saves = 0;
@@ -1093,7 +1092,7 @@ update {
       
       // Name of current difficulty
       var DifficultyTexts = new string[] { "Very Easy", "Easy", "Normal", "Hard", "Extreme", "European Extreme" };
-      Func<string> DifficultyText = () => DifficultyTexts[Difficulty()];
+      Func<string> DifficultyText = () => DifficultyTexts.ElementAtOrDefault(Difficulty());
       vars.DifficultyText = DifficultyText;
       
       // Code for current level
@@ -1208,6 +1207,7 @@ update {
       Func<int, int, int, bool> Between = (input, lower, upper) => ( (input <= lower) && (input >= upper) );
       
       Func<int, int, int> Percent = delegate(int cur, int max) {
+        if (max == 0) return 0;
         double percentage = (100.0 * cur / max);
         return Convert.ToInt32( Math.Round(percentage) );
       };
@@ -1684,7 +1684,7 @@ update {
         
         int DifficultyCode = Difficulty();
         var DifficultyModifiers = new int[] { 3, 3, 2, 1, 0, 0 };
-        int DifficultyModifier = DifficultyModifiers[DifficultyCode];
+        int DifficultyModifier = DifficultyModifiers.ElementAtOrDefault(DifficultyCode);
         vars.ASL_Difficulty = DifficultyText();
         
         int CurrentLevel = Level();
@@ -1847,10 +1847,7 @@ update {
           }
         }
 
-        if ( (current.Options != old.Options) || (vars.ASL_QuickEquipMode == "") )
-          vars.ASL_QuickEquipMode = ((current.Options & 0x200) == 0x200) ? "Previous" : "Unequip";
-      
-        vars.ASL_RoomTimer = current.RoomTimer;
+       vars.ASL_RoomTimer = current.RoomTimer;
         
         vars.ASL_Strength = Snakelike() ? current.StrengthSnake : current.StrengthRaiden;
         
@@ -2080,6 +2077,8 @@ update {
         {
           new MemoryWatcher<uint>(
             new DeepPointer(pointers["mainData"], 0x138)) { Name = "GameTime" },
+          new MemoryWatcher<uint>(
+            new DeepPointer(pointers["mainData"], 0xE4)) { Name = "RoomTimer" },
           new StringWatcher(
             new DeepPointer(pointers["mainData"], 0x1C), 10) { Name = "GameSection" },
           new StringWatcher(
@@ -2092,6 +2091,22 @@ update {
           new MemoryWatcher<byte>(pointers["gameplayActive"]) { Name = "GameplayActive" },
           new MemoryWatcher<byte>(
             new DeepPointer(pointers["tankerData"], 0x25C)) { Name = "SnakeTalesMission" },
+          new MemoryWatcher<short>(
+            new DeepPointer(pointers["mainData"], 0x130)) { Name = "StrengthRaiden" },
+          new MemoryWatcher<short>(
+            new DeepPointer(pointers["mainData"], 0x132)) { Name = "Continues" },
+          new MemoryWatcher<short>(
+            new DeepPointer(pointers["mainData"], 0x136)) { Name = "Saves" },
+          new MemoryWatcher<short>(
+            new DeepPointer(pointers["mainData"], 0x140)) { Name = "Shots" },
+          new MemoryWatcher<short>(
+            new DeepPointer(pointers["mainData"], 0x142)) { Name = "Alerts" },
+          new MemoryWatcher<short>(
+            new DeepPointer(pointers["mainData"], 0x144)) { Name = "Kills" },
+          new MemoryWatcher<short>(
+            new DeepPointer(pointers["mainData"], 0x146)) { Name = "Damage" },
+          new MemoryWatcher<short>(
+            new DeepPointer(pointers["mainData"], 0x158)) { Name = "Mechs" },
         };
       }
 
@@ -2103,29 +2118,22 @@ update {
       foreach (var watcher in vars.M)
         cur[watcher.Name] = watcher.Current;
 
-      cur["Shots"] = (short)0;
-      cur["Alerts"] = (short)0;
       cur["Rations"] = (short)0;
-      cur["Kills"] = (short)0;
-      cur["Damage"] = (short)0;
-      cur["Saves"] = (short)0;
-      cur["Mechs"] = (short)0;
       cur["Clearings"] = (short)0;
       cur["SeaLouce"] = (byte)0;
       cur["Extra"] = (ushort)0;
       cur["DogTagsSnake"] = (short)0;
       cur["DogTagsRaiden"] = (short)0;
-      cur["StrengthRaiden"] = (short)0;
       cur["StrengthSnake"] = (short)0;
-      cur["curHealth"] = (byte)0;
+      cur["CurrentHealth"] = (byte)0;
       cur["MaxHealth"] = (byte)0;
-      cur["curChaff"] = (short)0;
-      cur["curO2"] = (short)0;
-      cur["curGrip"] = (short)0;
+      cur["CurrentChaff"] = (short)0;
+      cur["CurrentO2"] = (short)0;
+      cur["CurrentGrip"] = (short)0;
       cur["MaxGrip"] = (short)0;
-      cur["curCaution"] = (short)0;
+      cur["CurrentCaution"] = (short)0;
       cur["MaxCaution"] = (short)0;
-      cur["curPentazemin"] = (int)0;
+      cur["CurrentPentazemin"] = (int)0;
       cur["GroupMultiplier"] = (short)0;
       cur["Difficulty"] = (byte)0;
       cur["Level"] = (ushort)0;
