@@ -932,13 +932,13 @@ init {
     IntPtr refLocation = vars.FindReference(patternOffset, pattern);
     if (refLocation == IntPtr.Zero)
     {
-      print(name + " reference not found by signature scan");
+      vars.Debug(name + " reference not found by signature scan");
       return refLocation;
     }
 
     int relativePointer = memory.ReadValue<int>(refLocation);
     IntPtr absolutePointer = IntPtr.Add(refLocation, relativePointer + pointerOffset);
-    print("Found reference to " + name + " at " + refLocation.ToString("X") + " value " + relativePointer.ToString("X") + " > " + absolutePointer.ToString("X"));
+    vars.Debug("Found reference to " + name + " at " + refLocation.ToString("X") + " value " + relativePointer.ToString("X") + " > " + absolutePointer.ToString("X"));
     return absolutePointer;
   });
 }
@@ -1038,7 +1038,7 @@ update {
       vars.InfoTimer = 0;
       vars.DebugTimerStart = 120;
       Action<string> Debug = delegate(string message) {
-        message = "[" + current.GameTime + "] " + message;
+        //message = "[" + current.GameTime + "] " + message;
         if (settings["debug_file"]) {
           using(System.IO.StreamWriter stream = new System.IO.StreamWriter(DebugPath, true)) {
             stream.WriteLine(message);
@@ -1686,7 +1686,7 @@ update {
         var DifficultyModifiers = new int[] { 3, 3, 2, 1, 0, 0 };
         int DifficultyModifier = DifficultyModifiers.ElementAtOrDefault(DifficultyCode);
         vars.ASL_Difficulty = DifficultyText();
-        
+
         int CurrentLevel = Level();
         
         var Ranks = new string[] { "", "", "", "" };
@@ -1715,38 +1715,38 @@ update {
             }
           }
           if (Category != -1) {
-            int Result = Category + new int[] { 4, 3, 2, 1, 0, 0 }[DifficultyCode];
-            if (Result < 4) return new string[] { "Big Boss", "Fox", "Doberman", "Hound" }[Result];
+            int Result = Category + new int[] { 4, 3, 2, 1, 0, 0 }.ElementAtOrDefault(DifficultyCode);
+            if (Result < 4) return new string[] { "Big Boss", "Fox", "Doberman", "Hound" }.ElementAtOrDefault(Result);
           }
           // Bottom rank
           else if ( (vars.ASL_Alerts > BigBossAlertState + 246) && (vars.ASL_Kills > 249) && (vars.ASL_Rations > 30) && (vars.ASL_Saves > 99) && (vars.ASL_Continues > 59) && (vars.ASL_Minutes > 1799) ) {
-            return new string[] { "Ostrich", "Rabbit", "Mouse", "Chicken" }[DifficultyModifier];
+            return new string[] { "Ostrich", "Rabbit", "Mouse", "Chicken" }.ElementAtOrDefault(DifficultyModifier);
           }
         }
         else PerfectStatsOnly = true;
         
         // Individual stats
         if ( (CurrentLevel != 0) && (current.SeaLouce == 1) ) return "Sea Louce";
-        if (vars.ASL_Alerts <= new int[] { BigBossAlertState, 0, BigBossAlertState }[CurrentLevel]) {
-          return new string[] { "Night Owl", "Flying Fox", "Bat", "Flying Squirrel" }[DifficultyModifier];
+        if (vars.ASL_Alerts <= new int[] { BigBossAlertState, 0, BigBossAlertState }.ElementAtOrDefault(CurrentLevel)) {
+          return new string[] { "Night Owl", "Flying Fox", "Bat", "Flying Squirrel" }.ElementAtOrDefault(DifficultyModifier);
         }
         if (vars.ASL_Kills == 0) return "Pigeon";
-        if (vars.ASL_Minutes < new int[] { 181, 19, 166 }[CurrentLevel]) {
-          return new string[] { "Eagle", "Hawk", "Falcon", "Swallow" }[DifficultyModifier];
+        if (vars.ASL_Minutes < new int[] { 181, 19, 166 }.ElementAtOrDefault(CurrentLevel)) {
+          return new string[] { "Eagle", "Hawk", "Falcon", "Swallow" }.ElementAtOrDefault(DifficultyModifier);
         }
-        if (vars.ASL_ClearingEscapes > new int[] { 149, 49, 99 }[CurrentLevel]) return "Gazelle";
-        if (vars.ASL_Alerts > new int[] { BigBossAlertState + 246, 49, BigBossAlertState + 196 }[CurrentLevel]) return "Cow";
-        if (vars.ASL_Kills > new int[] { 249, 49, 199 }[CurrentLevel]) {
-          return new string[] { "Orca", "Jaws", "Shark", "Piranha" }[DifficultyModifier];
+        if (vars.ASL_ClearingEscapes > new int[] { 149, 49, 99 }.ElementAtOrDefault(CurrentLevel)) return "Gazelle";
+        if (vars.ASL_Alerts > new int[] { BigBossAlertState + 246, 49, BigBossAlertState + 196 }.ElementAtOrDefault(CurrentLevel)) return "Cow";
+        if (vars.ASL_Kills > new int[] { 249, 49, 199 }.ElementAtOrDefault(CurrentLevel)) {
+          return new string[] { "Orca", "Jaws", "Shark", "Piranha" }.ElementAtOrDefault(DifficultyModifier);
         }
         if (vars.ASL_Rations > 30) {
-          return new string[] { "Whale", "Mammoth", "Elephant", "Pig" }[DifficultyModifier];
+          return new string[] { "Whale", "Mammoth", "Elephant", "Pig" }.ElementAtOrDefault(DifficultyModifier);
         }
-        if (vars.ASL_Minutes > new int[] { 1799, 299, 1499 }[CurrentLevel]) {
-          return new string[] { "Giant Panda", "Sloth", "Capybara", "Koala" }[DifficultyModifier];
+        if (vars.ASL_Minutes > new int[] { 1799, 299, 1499 }.ElementAtOrDefault(CurrentLevel)) {
+          return new string[] { "Giant Panda", "Sloth", "Capybara", "Koala" }.ElementAtOrDefault(DifficultyModifier);
         }
         if (vars.ASL_Saves > new int[] { 99, 24, 74 }[CurrentLevel]) {
-          return new string[] { "Hippopotamus", "Zebra", "Deer", "Cat" }[DifficultyModifier];
+          return new string[] { "Hippopotamus", "Zebra", "Deer", "Cat" }.ElementAtOrDefault(DifficultyModifier);
         }
         
         // The rest
@@ -1760,8 +1760,11 @@ update {
             { "Spider", "Puma", "Hyena", "Alligator" } // 1 = >K
           }
         };
-        int TestContinues = (vars.ASL_Continues > new int[] { 40, 10, 30 }[CurrentLevel]) ? 1 : 0;
-        int TestKills = (vars.ASL_Kills > new int[] { 70, 15, 60 }[CurrentLevel]) ? 1 : 0;
+        int TestContinues = (vars.ASL_Continues > new int[] { 40, 10, 30 }.ElementAtOrDefault(CurrentLevel)) ? 1 : 0;
+        int TestKills = (vars.ASL_Kills > new int[] { 70, 15, 60 }.ElementAtOrDefault(CurrentLevel)) ? 1 : 0;
+
+        print("2");
+
         return TheRest[TestContinues, TestKills, DifficultyModifier];
 
       };
@@ -2062,7 +2065,7 @@ update {
 
         if (pointers.ContainsValue(IntPtr.Zero))
         {
-          print("One or more MC2 pointers not found, unable to autosplit. Will attempt to attach again in 10 seconds.");
+          vars.Debug("One or more MC2 pointers not found, unable to autosplit. Will attempt to attach again in 10 seconds.");
           vars.NextAttachAttempt = DateTime.Now.AddSeconds(10);
           return false;
         }
@@ -2079,6 +2082,10 @@ update {
             new DeepPointer(pointers["mainData"], 0x138)) { Name = "GameTime" },
           new MemoryWatcher<uint>(
             new DeepPointer(pointers["mainData"], 0xE4)) { Name = "RoomTimer" },
+          new MemoryWatcher<uint>(
+            new DeepPointer(pointers["mainData"], 0x6)) { Name = "Options" },
+          new MemoryWatcher<byte>(
+            new DeepPointer(pointers["mainData"], 0x10)) { Name = "Difficulty" },
           new StringWatcher(
             new DeepPointer(pointers["mainData"], 0x1C), 10) { Name = "GameSection" },
           new StringWatcher(
@@ -2087,10 +2094,20 @@ update {
             new DeepPointer(pointers["tankerData"], 0x6)) { Name = "ProgressTanker" },
           new MemoryWatcher<ushort>(
             new DeepPointer(pointers["plantData"], 0x68)) { Name = "ProgressPlant" },
+          new MemoryWatcher<ushort>(
+            new DeepPointer(pointers["plantData"], 0x2)) { Name = "Level" }, // todo fix
           new MemoryWatcher<uint>(pointers["gameplayState"]) { Name = "ResultsComplete" },
           new MemoryWatcher<byte>(pointers["gameplayActive"]) { Name = "GameplayActive" },
           new MemoryWatcher<byte>(
             new DeepPointer(pointers["tankerData"], 0x25C)) { Name = "SnakeTalesMission" },
+          new MemoryWatcher<byte>(
+            new DeepPointer(pointers["mainData"], 0xFA)) { Name = "CurrentHealth" },
+          new MemoryWatcher<byte>(
+            new DeepPointer(pointers["mainData"], 0xFC)) { Name = "MaxHealth" },
+          new MemoryWatcher<byte>(
+            new DeepPointer(pointers["mainData"], 0xFE)) { Name = "CurrentO2" },
+          new MemoryWatcher<short>(
+            new DeepPointer(pointers["mainData"], 0x118)) { Name = "Rations" },
           new MemoryWatcher<short>(
             new DeepPointer(pointers["mainData"], 0x130)) { Name = "StrengthRaiden" },
           new MemoryWatcher<short>(
@@ -2118,26 +2135,19 @@ update {
       foreach (var watcher in vars.M)
         cur[watcher.Name] = watcher.Current;
 
-      cur["Rations"] = (short)0;
       cur["Clearings"] = (short)0;
       cur["SeaLouce"] = (byte)0;
       cur["Extra"] = (ushort)0;
       cur["DogTagsSnake"] = (short)0;
       cur["DogTagsRaiden"] = (short)0;
       cur["StrengthSnake"] = (short)0;
-      cur["CurrentHealth"] = (byte)0;
-      cur["MaxHealth"] = (byte)0;
       cur["CurrentChaff"] = (short)0;
-      cur["CurrentO2"] = (short)0;
       cur["CurrentGrip"] = (short)0;
       cur["MaxGrip"] = (short)0;
       cur["CurrentCaution"] = (short)0;
       cur["MaxCaution"] = (short)0;
       cur["CurrentPentazemin"] = (int)0;
-      cur["GroupMultiplier"] = (short)0;
-      cur["Difficulty"] = (byte)0;
-      cur["Level"] = (ushort)0;
-      cur["Options"] = (short)0;
+      cur["GripMultiplier"] = (short)0;
       cur["PadInput"] = (int)0;
       cur["ContinuingState"] = (uint)0;
       cur["OlgaStamina"] = (byte)0;
@@ -2158,7 +2168,7 @@ update {
       cur["RaysTalesHealth"] = (short)0;
       cur["ChokeTimer"] = (short)0;
       cur["AscendingColonActive"] = (byte)0;
-      cur["AscendingColonActive"] = (short)0;
+      cur["AscendingColonTimer"] = (short)0;
       cur["CartwheelCode"] = (byte)0;
       cur["EmmaO2"] = (short)0;
       cur["EmmaMaxO2"] = (short)0;
