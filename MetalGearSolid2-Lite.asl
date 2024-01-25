@@ -61,6 +61,9 @@ init {
 
   Func<bool> watTengus1 = () => current.RoomCode.Equals("w45a");
   D.Watch.Add("r_plt_397", watTengus1);
+
+  Func<bool> watTengus1Unglitched = () => (D.old.RoomCode.Equals("w44a") && current.RoomCode.Equals("w45a"));
+  D.Watch.Add("r_plt_399", watTengus1Unglitched);
   
   Func<bool> watResults = () => ((current.ResultsComplete & 0x200) == 0x200);
   D.Watch.Add("r_tnk_56", watResults);
@@ -353,6 +356,7 @@ split {
     if (D.Watch.ContainsKey(Code)) {
       if (D.Watch[Code]()) {
         D.DontWatch = Code;
+        if (Code.Equals("r_plt_399")) Code = "r_plt_397"; // Tengus ̄1 unglitched
         //D.Watch.Remove(Code); // bad, need to avoid actually removing from dict
         return ((settings.ContainsKey(Code)) && (settings[Code]));
       }
