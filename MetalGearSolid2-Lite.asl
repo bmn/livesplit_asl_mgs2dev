@@ -30,6 +30,7 @@ init {
   D.IsMasterCollection = false;
   D.Watchers = null;
   D.DontWatch = null;
+  D.Watch.Clear();
 
   D.IsRtaLoadlessEnabled = (Func<bool>)(() => (settings["opt.RTALoadless"] && D.IsMasterCollection));
 
