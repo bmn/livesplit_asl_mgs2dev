@@ -209,11 +209,15 @@ gameTime {
 }
 
 reset {
-  return ((current.RoomCode != old.RoomCode) && (current.RoomCode == "n_title"));
+  if ((current.RoomCode != old.RoomCode) && (current.RoomCode == "n_title")) {
+      vars.D.DontWatch = null;
+      return true;
+  }
 }
 
 start {
   var D = vars.D;
+  D.DontWatch = null;
 
 /*
   if (D.IsMasterCollection) {
