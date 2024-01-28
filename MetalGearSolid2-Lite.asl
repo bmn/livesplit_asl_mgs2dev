@@ -261,7 +261,7 @@ startup {
   D.LastAreaLoadTime = null;
   
   D.Menus = new HashSet<string>() {
-    "n_title", "mselect", "sselect", "select", "tales",
+    "n_title", "mselect", "sselect", "select", "tales", "init"
   };
 
   D.Debug = (Action<string>)((msg) => {
